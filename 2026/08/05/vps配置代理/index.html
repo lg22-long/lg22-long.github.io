@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"lg22-long.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="🐱 VPS 使用 clash-for-linux 配置代理笔记适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。 📌 背景与原理国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 git、curl、wget 等 TCP 流量通过代理节点转发，可显著提升下载速度。核心原理：C">
+  <meta name="description" content="🐱 VPS 使用 clash-for-linux 配置代理笔记 适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。   📌 背景与原理国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 git、curl、wget 等 TCP 流量通过代理节点转发，可显著提升下载速度。 核心">
 <meta property="og:type" content="article">
 <meta property="og:title" content="vps配置代理">
 <meta property="og:url" content="https://lg22-long.github.io/2026/08/05/vps%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86/index.html">
 <meta property="og:site_name" content="lg22">
-<meta property="og:description" content="🐱 VPS 使用 clash-for-linux 配置代理笔记适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。 📌 背景与原理国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 git、curl、wget 等 TCP 流量通过代理节点转发，可显著提升下载速度。核心原理：C">
+<meta property="og:description" content="🐱 VPS 使用 clash-for-linux 配置代理笔记 适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。   📌 背景与原理国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 git、curl、wget 等 TCP 流量通过代理节点转发，可显著提升下载速度。 核心">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-08-05T10:28:43.000Z">
-<meta property="article:modified_time" content="2026-08-05T10:31:04.117Z">
+<meta property="article:modified_time" content="2026-08-05T10:35:20.110Z">
 <meta property="article:author" content="lg22">
 <meta name="twitter:card" content="summary">
 
@@ -174,7 +174,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-08-05 18:28:43 / 修改时间：18:31:04" itemprop="dateCreated datePublished" datetime="2026-08-05T18:28:43+08:00">2026-08-05</time>
+              <time title="创建时间：2026-08-05 18:28:43 / 修改时间：18:35:20" itemprop="dateCreated datePublished" datetime="2026-08-05T18:28:43+08:00">2026-08-05</time>
             </span>
 
           
@@ -188,27 +188,130 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>🐱 VPS 使用 clash-for-linux 配置代理笔记<br>适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。</p>
-<p>📌 背景与原理<br>国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 git、curl、wget 等 TCP 流量通过代理节点转发，可显著提升下载速度。<br>核心原理：Clash 在本地 127.0.0.1:7890 开启 HTTP&#x2F;SOCKS5 代理服务，通过设置环境变量或 Git 配置，让网络工具自动使用该代理。</p>
-<p>🚀 部署步骤（基于 wnlen&#x2F;clash-for-linux）</p>
-<ol>
-<li><p>切换 Root 用户<br>sudo -i</p>
-</li>
-<li><p>一键安装 clash-for-linux<br>git clone –branch master –depth 1 <a target="_blank" rel="noopener" href="https://ghfast.top/https://github.com/wnlen/clash-for-linux.git">https://ghfast.top/https://github.com/wnlen/clash-for-linux.git</a> &amp;&amp; cd clash-for-linux &amp;&amp; bash install.sh<br>💡 如果上述镜像链接失效，可替换为其他可用镜像，如：<br><a target="_blank" rel="noopener" href="https://ghproxy.link/https://github.com/wnlen/clash-for-linux.git">https://ghproxy.link/https://github.com/wnlen/clash-for-linux.git</a></p>
-</li>
-<li><p>配置订阅地址<br>编辑项目根目录下的 .env 文件：<br>vim .env<br>修改以下变量：<br>CLASH_URL&#x3D;”你的Clash订阅地址”   # 从机场服务商获取<br>CLASH_SECRET&#x3D;                  # 留空则自动生成，用于Web控制台认证<br>保存退出（Esc → :wq）。</p>
-</li>
-<li><p>启动 Clash 服务<br>clashon</p>
-</li>
-<li><p>验证代理是否生效<br>❌ 不要用 ping（ping 走 ICMP 协议，Clash 默认不代理）。<br>✅ 使用 curl 测试 TCP 代理：<br>curl -I <a target="_blank" rel="noopener" href="https://www.google.com/">https://www.google.com</a><br>如果返回 HTTP&#x2F;1.1 200 OK，说明代理已成功运行。</p>
-</li>
-</ol>
-<p>🧰 常用管理命令<br>命令	说明<br>clashon	开启代理<br>clashoff	关闭代理<br>clashstatus	查看当前运行状态<br>clashctl select	交互式切换节点<br>clashui	显示 Web 控制台地址和密钥<br>clashctl tun on	开启 TUN 模式（透明代理，⚠️ 慎用）<br>clashdoctor	运行诊断工具</p>
-<p>⚙️ 让 Git 永久走代理（核心配置）<br>即使 Clash 已启动，环境变量可能因 sudo 或非交互式 Shell 而丢失，导致 Git 直连。<br>最佳实践：直接配置 Git 全局代理（推荐）<br>git config –global http.proxy “<a target="_blank" rel="noopener" href="http://127.0.0.1:7890/">http://127.0.0.1:7890</a>“<br>git config –global https.proxy “<a target="_blank" rel="noopener" href="http://127.0.0.1:7890/">http://127.0.0.1:7890</a>“<br>配置完成后，无论是否使用 sudo，Git 都会强制走代理，一劳永逸。<br>取消 Git 代理：<br>git config –global –unset http.proxy<br>git config –global –unset https.proxy</p>
-<p>❓ 常见问题排查<br>Q1：ping youtube.com 不通，但 curl 能通？<br>A：正常现象。ping 使用 ICMP 协议，Clash 默认仅代理 TCP&#x2F;UDP，不处理 ICMP。只要 curl 返回 200，代理即生效。<br>Q2：curl 不加 -x 参数也能通？<br>A：因为安装脚本已将代理写入 &#x2F;etc&#x2F;profile.d&#x2F;clash.sh，当前 SSH 会话自动加载了 http_proxy 环境变量。但该方式依赖 Shell 环境，使用 sudo 或后台任务时会失效，因此仍建议配置 git config –global 作为兜底。<br>Q3：切换节点后感觉速度没变化？<br>A：可运行 clashctl select 手动选择延迟较低的节点，或通过 Web 控制台 <a target="_blank" rel="noopener" href="http://127.0.0.1:9090/ui">http://127.0.0.1:9090/ui</a> 查看节点实时延迟。<br>Q4：sudo git clone 还是慢？<br>A：sudo 默认重置环境变量，不会继承 http_proxy。解决方案：已配置 git config –global 的情况下，sudo 也会读取该配置，因此不受影响。</p>
-<p>🔒 安全提示<br>● 订阅地址等同于你的代理凭证，勿公开分享。<br>● Web 控制台默认监听 127.0.0.1:9090，如需外网访问，请设置 CLASH_SECRET 强密码并配置防火墙。<br>● 开启 TUN 模式可能影响 SSH 连接，非必要不建议开启。</p>
-<p>📎 补充：环境变量临时方案（可选）<br>如不使用 git config，也可每次登录后手动设置环境变量（仅当前会话有效）：<br>export http_proxy&#x3D;”<a target="_blank" rel="noopener" href="http://127.0.0.1:7890/">http://127.0.0.1:7890</a>“<br>export https_proxy&#x3D;”<a target="_blank" rel="noopener" href="http://127.0.0.1:7890/">http://127.0.0.1:7890</a>“<br>但推荐优先使用 git config –global，稳定且无副作用。</p>
-<p>🎯 总结<br>步骤	关键操作<br>安装	bash install.sh<br>配置订阅	修改 .env 中的 CLASH_URL<br>启动	clashon<br>验证	curl -I <a target="_blank" rel="noopener" href="https://www.google.com/">https://www.google.com</a><br>永久生效	git config –global http.proxy <a target="_blank" rel="noopener" href="http://127.0.0.1:7890/">http://127.0.0.1:7890</a><br>配置完成后，即可在 VPS 上享受高速 git clone、wget 和 curl 体验。🚀</p>
+        <h1 id="🐱-VPS-使用-clash-for-linux-配置代理笔记"><a href="#🐱-VPS-使用-clash-for-linux-配置代理笔记" class="headerlink" title="🐱 VPS 使用 clash-for-linux 配置代理笔记"></a>🐱 VPS 使用 clash-for-linux 配置代理笔记</h1><blockquote>
+<p>适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。</p>
+</blockquote>
+<hr>
+<h2 id="📌-背景与原理"><a href="#📌-背景与原理" class="headerlink" title="📌 背景与原理"></a>📌 背景与原理</h2><p>国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 <code>git</code>、<code>curl</code>、<code>wget</code> 等 TCP 流量通过代理节点转发，可显著提升下载速度。</p>
+<p><strong>核心原理</strong>：Clash 在本地 <code>127.0.0.1:7890</code> 开启 HTTP&#x2F;SOCKS5 代理服务，通过设置环境变量或 Git 配置，让网络工具自动使用该代理。</p>
+<hr>
+<h2 id="🚀-部署步骤（基于-wnlen-clash-for-linux）"><a href="#🚀-部署步骤（基于-wnlen-clash-for-linux）" class="headerlink" title="🚀 部署步骤（基于 wnlen/clash-for-linux）"></a>🚀 部署步骤（基于 <code>wnlen/clash-for-linux</code>）</h2><h3 id="1-切换-Root-用户"><a href="#1-切换-Root-用户" class="headerlink" title="1. 切换 Root 用户"></a>1. 切换 Root 用户</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> -i</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-一键安装-clash-for-linux"><a href="#2-一键安装-clash-for-linux" class="headerlink" title="2. 一键安装 clash-for-linux"></a>2. 一键安装 clash-for-linux</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --branch master --depth 1 https://ghfast.top/https://github.com/wnlen/clash-for-linux.git &amp;&amp; <span class="built_in">cd</span> clash-for-linux &amp;&amp; bash install.sh</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>💡 如果上述镜像链接失效，可替换为其他可用镜像，如：<br><code>https://ghproxy.link/https://github.com/wnlen/clash-for-linux.git</code></p>
+</blockquote>
+<hr>
+<h3 id="3-配置订阅地址"><a href="#3-配置订阅地址" class="headerlink" title="3. 配置订阅地址"></a>3. 配置订阅地址</h3><p>编辑项目根目录下的 <code>.env</code> 文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim .<span class="built_in">env</span></span><br></pre></td></tr></table></figure>
+
+<p>修改以下变量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CLASH_URL=<span class="string">&quot;你的Clash订阅地址&quot;</span>   <span class="comment"># 从机场服务商获取</span></span><br><span class="line">CLASH_SECRET=                  <span class="comment"># 留空则自动生成，用于Web控制台认证</span></span><br></pre></td></tr></table></figure>
+
+<p>保存退出（<code>Esc</code> → <code>:wq</code>）。</p>
+<hr>
+<h3 id="4-启动-Clash-服务"><a href="#4-启动-Clash-服务" class="headerlink" title="4. 启动 Clash 服务"></a>4. 启动 Clash 服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clashon</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-验证代理是否生效"><a href="#5-验证代理是否生效" class="headerlink" title="5. 验证代理是否生效"></a>5. 验证代理是否生效</h3><p><strong>❌ 不要用 <code>ping</code></strong>（ping 走 ICMP 协议，Clash 默认不代理）。</p>
+<p><strong>✅ 使用 <code>curl</code> 测试 TCP 代理</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -I https://www.google.com</span><br></pre></td></tr></table></figure>
+
+<p>如果返回 <code>HTTP/1.1 200 OK</code>，说明代理已成功运行。</p>
+<hr>
+<h2 id="🧰-常用管理命令"><a href="#🧰-常用管理命令" class="headerlink" title="🧰 常用管理命令"></a>🧰 常用管理命令</h2><table>
+<thead>
+<tr>
+<th align="left">命令</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>clashon</code></td>
+<td align="left">开启代理</td>
+</tr>
+<tr>
+<td align="left"><code>clashoff</code></td>
+<td align="left">关闭代理</td>
+</tr>
+<tr>
+<td align="left"><code>clashstatus</code></td>
+<td align="left">查看当前运行状态</td>
+</tr>
+<tr>
+<td align="left"><code>clashctl select</code></td>
+<td align="left">交互式切换节点</td>
+</tr>
+<tr>
+<td align="left"><code>clashui</code></td>
+<td align="left">显示 Web 控制台地址和密钥</td>
+</tr>
+<tr>
+<td align="left"><code>clashctl tun on</code></td>
+<td align="left">开启 TUN 模式（透明代理，⚠️ 慎用）</td>
+</tr>
+<tr>
+<td align="left"><code>clashdoctor</code></td>
+<td align="left">运行诊断工具</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="⚙️-让-Git-永久走代理（核心配置）"><a href="#⚙️-让-Git-永久走代理（核心配置）" class="headerlink" title="⚙️ 让 Git 永久走代理（核心配置）"></a>⚙️ 让 Git 永久走代理（核心配置）</h2><p>即使 Clash 已启动，环境变量可能因 <code>sudo</code> 或非交互式 Shell 而丢失，导致 Git 直连。</p>
+<p><strong>最佳实践：直接配置 Git 全局代理（推荐）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy <span class="string">&quot;http://127.0.0.1:7890&quot;</span></span><br><span class="line">git config --global https.proxy <span class="string">&quot;http://127.0.0.1:7890&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>配置完成后，无论是否使用 <code>sudo</code>，Git 都会强制走代理，一劳永逸。</p>
+<p><strong>取消 Git 代理</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --<span class="built_in">unset</span> http.proxy</span><br><span class="line">git config --global --<span class="built_in">unset</span> https.proxy</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❓-常见问题排查"><a href="#❓-常见问题排查" class="headerlink" title="❓ 常见问题排查"></a>❓ 常见问题排查</h2><h3 id="Q1：ping-youtube-com-不通，但-curl-能通？"><a href="#Q1：ping-youtube-com-不通，但-curl-能通？" class="headerlink" title="Q1：ping youtube.com 不通，但 curl 能通？"></a>Q1：<code>ping youtube.com</code> 不通，但 <code>curl</code> 能通？</h3><p><strong>A</strong>：正常现象。<code>ping</code> 使用 ICMP 协议，Clash 默认仅代理 TCP&#x2F;UDP，不处理 ICMP。只要 <code>curl</code> 返回 200，代理即生效。</p>
+<h3 id="Q2：curl-不加-x-参数也能通？"><a href="#Q2：curl-不加-x-参数也能通？" class="headerlink" title="Q2：curl 不加 -x 参数也能通？"></a>Q2：<code>curl</code> 不加 <code>-x</code> 参数也能通？</h3><p><strong>A</strong>：因为安装脚本已将代理写入 <code>/etc/profile.d/clash.sh</code>，当前 SSH 会话自动加载了 <code>http_proxy</code> 环境变量。但该方式依赖 Shell 环境，使用 <code>sudo</code> 或后台任务时会失效，因此仍建议配置 <code>git config --global</code> 作为兜底。</p>
+<h3 id="Q3：切换节点后感觉速度没变化？"><a href="#Q3：切换节点后感觉速度没变化？" class="headerlink" title="Q3：切换节点后感觉速度没变化？"></a>Q3：切换节点后感觉速度没变化？</h3><p><strong>A</strong>：可运行 <code>clashctl select</code> 手动选择延迟较低的节点，或通过 Web 控制台 <code>http://127.0.0.1:9090/ui</code> 查看节点实时延迟。</p>
+<h3 id="Q4：sudo-git-clone-还是慢？"><a href="#Q4：sudo-git-clone-还是慢？" class="headerlink" title="Q4：sudo git clone 还是慢？"></a>Q4：<code>sudo git clone</code> 还是慢？</h3><p><strong>A</strong>：<code>sudo</code> 默认重置环境变量，不会继承 <code>http_proxy</code>。解决方案：已配置 <code>git config --global</code> 的情况下，<code>sudo</code> 也会读取该配置，因此不受影响。</p>
+<hr>
+<h2 id="🔒-安全提示"><a href="#🔒-安全提示" class="headerlink" title="🔒 安全提示"></a>🔒 安全提示</h2><ul>
+<li>订阅地址等同于你的代理凭证，<strong>勿公开分享</strong>。</li>
+<li>Web 控制台默认监听 <code>127.0.0.1:9090</code>，如需外网访问，请设置 <code>CLASH_SECRET</code> 强密码并配置防火墙。</li>
+<li>开启 TUN 模式可能影响 SSH 连接，非必要不建议开启。</li>
+</ul>
+<hr>
+<h2 id="📎-补充：环境变量临时方案（可选）"><a href="#📎-补充：环境变量临时方案（可选）" class="headerlink" title="📎 补充：环境变量临时方案（可选）"></a>📎 补充：环境变量临时方案（可选）</h2><p>如不使用 <code>git config</code>，也可每次登录后手动设置环境变量（<strong>仅当前会话有效</strong>）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&quot;http://127.0.0.1:7890&quot;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&quot;http://127.0.0.1:7890&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>但推荐优先使用 <code>git config --global</code>，稳定且无副作用。</p>
+<hr>
+<h2 id="🎯-总结"><a href="#🎯-总结" class="headerlink" title="🎯 总结"></a>🎯 总结</h2><table>
+<thead>
+<tr>
+<th align="left">步骤</th>
+<th align="left">关键操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">安装</td>
+<td align="left"><code>bash install.sh</code></td>
+</tr>
+<tr>
+<td align="left">配置订阅</td>
+<td align="left">修改 <code>.env</code> 中的 <code>CLASH_URL</code></td>
+</tr>
+<tr>
+<td align="left">启动</td>
+<td align="left"><code>clashon</code></td>
+</tr>
+<tr>
+<td align="left">验证</td>
+<td align="left"><code>curl -I https://www.google.com</code></td>
+</tr>
+<tr>
+<td align="left">永久生效</td>
+<td align="left"><code>git config --global http.proxy http://127.0.0.1:7890</code></td>
+</tr>
+</tbody></table>
+<p>配置完成后，即可在 VPS 上享受高速 <code>git clone</code>、<code>wget</code> 和 <code>curl</code> 体验。🚀</p>
 
     </div>
 
@@ -286,6 +389,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%90%B1-VPS-%E4%BD%BF%E7%94%A8-clash-for-linux-%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86%E7%AC%94%E8%AE%B0"><span class="nav-number">1.</span> <span class="nav-text">🐱 VPS 使用 clash-for-linux 配置代理笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E8%83%8C%E6%99%AF%E4%B8%8E%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">📌 背景与原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9A%80-%E9%83%A8%E7%BD%B2%E6%AD%A5%E9%AA%A4%EF%BC%88%E5%9F%BA%E4%BA%8E-wnlen-clash-for-linux%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">🚀 部署步骤（基于 wnlen&#x2F;clash-for-linux）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%87%E6%8D%A2-Root-%E7%94%A8%E6%88%B7"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 切换 Root 用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85-clash-for-linux"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 一键安装 clash-for-linux</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%85%8D%E7%BD%AE%E8%AE%A2%E9%98%85%E5%9C%B0%E5%9D%80"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 配置订阅地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%90%AF%E5%8A%A8-Clash-%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. 启动 Clash 服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E9%AA%8C%E8%AF%81%E4%BB%A3%E7%90%86%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88"><span class="nav-number">1.2.5.</span> <span class="nav-text">5. 验证代理是否生效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%B0-%E5%B8%B8%E7%94%A8%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">🧰 常用管理命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9A%99%EF%B8%8F-%E8%AE%A9-Git-%E6%B0%B8%E4%B9%85%E8%B5%B0%E4%BB%A3%E7%90%86%EF%BC%88%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">⚙️ 让 Git 永久走代理（核心配置）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9D%93-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">1.5.</span> <span class="nav-text">❓ 常见问题排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q1%EF%BC%9Aping-youtube-com-%E4%B8%8D%E9%80%9A%EF%BC%8C%E4%BD%86-curl-%E8%83%BD%E9%80%9A%EF%BC%9F"><span class="nav-number">1.5.1.</span> <span class="nav-text">Q1：ping youtube.com 不通，但 curl 能通？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q2%EF%BC%9Acurl-%E4%B8%8D%E5%8A%A0-x-%E5%8F%82%E6%95%B0%E4%B9%9F%E8%83%BD%E9%80%9A%EF%BC%9F"><span class="nav-number">1.5.2.</span> <span class="nav-text">Q2：curl 不加 -x 参数也能通？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q3%EF%BC%9A%E5%88%87%E6%8D%A2%E8%8A%82%E7%82%B9%E5%90%8E%E6%84%9F%E8%A7%89%E9%80%9F%E5%BA%A6%E6%B2%A1%E5%8F%98%E5%8C%96%EF%BC%9F"><span class="nav-number">1.5.3.</span> <span class="nav-text">Q3：切换节点后感觉速度没变化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q4%EF%BC%9Asudo-git-clone-%E8%BF%98%E6%98%AF%E6%85%A2%EF%BC%9F"><span class="nav-number">1.5.4.</span> <span class="nav-text">Q4：sudo git clone 还是慢？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%92-%E5%AE%89%E5%85%A8%E6%8F%90%E7%A4%BA"><span class="nav-number">1.6.</span> <span class="nav-text">🔒 安全提示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8E-%E8%A1%A5%E5%85%85%EF%BC%9A%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%B4%E6%97%B6%E6%96%B9%E6%A1%88%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">1.7.</span> <span class="nav-text">📎 补充：环境变量临时方案（可选）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8E%AF-%E6%80%BB%E7%BB%93"><span class="nav-number">1.8.</span> <span class="nav-text">🎯 总结</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
