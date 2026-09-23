@@ -28,8 +28,12 @@
 <meta property="og:description" content="🐱 VPS 使用 clash-for-linux 配置代理笔记 适用场景：在 Linux VPS 上通过 Clash 代理加速访问 GitHub、Google 等外网资源。   📌 背景与原理国内 VPS 直连 GitHub 等海外服务通常速度极慢甚至超时。通过部署 Clash 代理客户端，将 VPS 的 git、curl、wget 等 TCP 流量通过代理节点转发，可显著提升下载速度。 核心">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-08-05T10:28:43.000Z">
-<meta property="article:modified_time" content="2026-08-05T10:36:09.175Z">
+<meta property="article:modified_time" content="2026-09-21T06:26:04.907Z">
 <meta property="article:author" content="lg22">
+<meta property="article:tag" content="Clash">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="VPS">
+<meta property="article:tag" content="网络代理">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://lg22-long.github.io/2026/08/05/vps%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86/">
@@ -117,6 +121,16 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -172,9 +186,24 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2026-08-05 18:28:43 / 修改时间：18:36:09" itemprop="dateCreated datePublished" datetime="2026-08-05T18:28:43+08:00">2026-08-05</time>
+              <time title="创建时间：2026-08-05 18:28:43" itemprop="dateCreated datePublished" datetime="2026-08-05T18:28:43+08:00">2026-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-09-21 14:26:04" itemprop="dateModified" datetime="2026-09-21T14:26:04+08:00">2026-09-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BF%90%E7%BB%B4%E4%B8%8E%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">运维与网络</span></a>
+                </span>
             </span>
 
           
@@ -320,6 +349,12 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/VPS/" rel="tag"># VPS</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E4%BB%A3%E7%90%86/" rel="tag"># 网络代理</a>
+              <a href="/tags/Clash/" rel="tag"># Clash</a>
+          </div>
 
         
 
@@ -330,7 +365,10 @@
     <a href="/2026/07/20/hello-world/" rel="prev" title="Hello World">
       <i class="fa fa-chevron-left"></i> Hello World
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2026/09/21/fastjson/" rel="next" title="Fastjson 反序列化漏洞基础">
+      Fastjson 反序列化漏洞基础 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -403,9 +441,21 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.1.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lg22-long.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在翻看 ysoserial 或者分析 ROME、Commons Collections 等反序列化利用链时，几乎所有人都会遇到一段让人抓狂的“迷惑代码”： 123456789101112&#x2F;&#x2F; 1. 先用一个看似八竿子打不着的无害对象占个坑ToStringBean toStringBean &#x3D; new ToStringBean(Templates.class, new ConstantTransfo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 反序列化构造里的“移花接木”：为什么非要先占位、再反射替换？">
+<meta property="og:url" content="https://lg22-long.github.io/2026/09/23/java_deserialization_placeholder_reflection/index.html">
+<meta property="og:site_name" content="lg22">
+<meta property="og:description" content="在翻看 ysoserial 或者分析 ROME、Commons Collections 等反序列化利用链时，几乎所有人都会遇到一段让人抓狂的“迷惑代码”： 123456789101112&#x2F;&#x2F; 1. 先用一个看似八竿子打不着的无害对象占个坑ToStringBean toStringBean &#x3D; new ToStringBean(Templates.class, new ConstantTransfo">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-23T07:20:00.000Z">
+<meta property="article:modified_time" content="2026-09-23T07:31:14.368Z">
+<meta property="article:author" content="lg22">
+<meta property="article:tag" content="Gadget">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="ROME">
+<meta property="article:tag" content="反序列化">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lg22-long.github.io/2026/09/23/java_deserialization_placeholder_reflection/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java 反序列化构造里的“移花接木”：为什么非要先占位、再反射替换？ | lg22</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">lg22</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lg22-long.github.io/2026/09/23/java_deserialization_placeholder_reflection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lg22">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lg22">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java 反序列化构造里的“移花接木”：为什么非要先占位、再反射替换？
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-09-23 15:20:00 / 修改时间：15:31:14" itemprop="dateCreated datePublished" datetime="2026-09-23T15:20:00+08:00">2026-09-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/" itemprop="url" rel="index"><span itemprop="name">安全研究</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/Java%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Java安全</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在翻看 ysoserial 或者分析 ROME、Commons Collections 等反序列化利用链时，几乎所有人都会遇到一段让人抓狂的“迷惑代码”：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 先用一个看似八竿子打不着的无害对象占个坑</span></span><br><span class="line"><span class="type">ToStringBean</span> <span class="variable">toStringBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(Templates.class, <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>));</span><br><span class="line"><span class="type">EqualsBean</span> <span class="variable">equalsBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class, toStringBean);</span><br><span class="line"></span><br><span class="line">HashMap&lt;Object, Object&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"><span class="comment">// 2. 把包装好的对象塞进 Map</span></span><br><span class="line">hashMap.put(equalsBean, <span class="string">&quot;123&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 绕了一大圈，再用反射强行把真正的恶意 payload 塞回去</span></span><br><span class="line"><span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> toStringBean.getClass().getDeclaredField(<span class="string">&quot;_obj&quot;</span>);</span><br><span class="line">field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">field.set(toStringBean, templates);</span><br></pre></td></tr></table></figure>
+
+<p>初看这段代码，很多人的第一反应都是：<strong>脱裤子放屁？</strong> 既然最终要让 <code>ToStringBean</code> 包装恶意的 <code>templates</code>（<code>TemplatesImpl</code> 实例），为什么不在第 1 步直接 <code>new ToStringBean(Templates.class, templates)</code> 传进去，非要先放一个无害的占位符，再用反射把字段换回来？</p>
+<p>这并不是炫技，而是无数安全研究员在无数次“本地踩坑”后总结出来的防御性写法。如果不这么做，你的 Payload 甚至根本走不出你自己的本地 JVM。</p>
+<hr>
+<h2 id="致命的导火索：HashMap-put-会自己“动手”"><a href="#致命的导火索：HashMap-put-会自己“动手”" class="headerlink" title="致命的导火索：HashMap.put() 会自己“动手”"></a>致命的导火索：<code>HashMap.put()</code> 会自己“动手”</h2><p>Java 反序列化构造中，<code>HashMap</code> 是最常用的入口包装器（Kick-off gadget）。但很多人忽略了一点：<strong><code>HashMap</code> 在添加元素的那一刻，就会主动去摸 Key 的底。</strong></p>
+<p>看一下 JDK 源码中最核心的 <code>put</code> 逻辑：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> V <span class="title function_">put</span><span class="params">(K key, V value)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> putVal(hash(key), key, value, <span class="literal">false</span>, <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">hash</span><span class="params">(Object key)</span> &#123;</span><br><span class="line">    <span class="type">int</span> h;</span><br><span class="line">    <span class="comment">// 关键：只要 key 不为 null，立刻调用 key.hashCode() 计算桶位置</span></span><br><span class="line">    <span class="keyword">return</span> (key == <span class="literal">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这意味着：<strong>任何对象只要作为 Key 塞进 <code>HashMap</code>，它的 <code>hashCode()</code> 就会在本地毫秒级同步触发。</strong></p>
+<p>在 ROME 链中，这瞬间拉开了一整串连锁反应：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hashMap.put(equalsBean, &quot;123&quot;)</span><br><span class="line">  └──&gt; equalsBean.hashCode()</span><br><span class="line">        └──&gt; EqualsBean.beanHashCode()</span><br><span class="line">              └──&gt; toStringBean.toString()</span><br><span class="line">                    └──&gt; 遍历内省 PropertyUtils.getPropertyDescriptors(...)</span><br><span class="line">                          └──&gt; 反射调用 _obj 的所有无参 Getter！</span><br></pre></td></tr></table></figure>
+
+<p><code>ToStringBean.toString()</code> 会自动抓取被包装对象的所有 Getter 方法并逐一执行。如果被包装的 <code>_obj</code> 已经是恶意的 <code>TemplatesImpl</code>，那么当遍历到 <code>getOutputProperties()</code> 时，本地就会立刻调用 <code>newTransformer()</code>。</p>
+<p><strong>你在写生成 Payload 的脚本，结果一按运行，自己本地的计算器先弹出来了。</strong></p>
+<hr>
+<h2 id="提前在本地触发，会有多惨？"><a href="#提前在本地触发，会有多惨？" class="headerlink" title="提前在本地触发，会有多惨？"></a>提前在本地触发，会有多惨？</h2><p>有人可能会说：“本地弹个计算器就弹了呗，只要 Payload 能生成出来不就行了？” </p>
+<p>很遗憾，提前触发带来的远不止本地执行这么简单，它会直接导致 Payload 报废，主要卡在两个硬伤上：</p>
+<h3 id="1-半成品直接暴毙（NPE）"><a href="#1-半成品直接暴毙（NPE）" class="headerlink" title="1. 半成品直接暴毙（NPE）"></a>1. 半成品直接暴毙（NPE）</h3><p>构造一个可利用的 <code>TemplatesImpl</code>，通常需要用反射强行注入一堆私有字段：<code>_name</code>、<code>_bytecodes</code>、<code>_tfactory</code> 等。</p>
+<p>如果还没完全装配完毕，或者上下文环境稍有缺漏，提前执行 Getter 往往不会成功，而是直接抛出 <code>NullPointerException</code> 或内部初始化异常，当前 JVM 进程当场崩溃退出，你连序列化文件的影子都见不到。</p>
+<h3 id="2-状态被“污染”：最隐蔽的-NotSerializableException"><a href="#2-状态被“污染”：最隐蔽的-NotSerializableException" class="headerlink" title="2. 状态被“污染”：最隐蔽的 NotSerializableException"></a>2. 状态被“污染”：最隐蔽的 <code>NotSerializableException</code></h3><p>这是最致命的问题——<strong>对象的缓存效应与脏状态</strong>。</p>
+<p>观察 <code>TemplatesImpl</code> 的内部属性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Class[] _class = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> <span class="variable">_transletIndex</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>正常情况下，序列化前的 <code>_class</code> 必须是 <code>null</code>。序列化流中只需要保存纯净的字节码数组（<code>_bytecodes</code>）。</p>
+<p>一旦在本地 <code>put()</code> 阶段提前触发了实例化，内部的 <code>defineTransletClasses()</code> 会被执行，恶意的字节码被加载成了真正的 <code>Class</code> 对象，并直接写回了 <code>_class</code> 数组做性能缓存。</p>
+<p><strong>坏事就坏在这里：</strong><br>这个动态生成的 <code>Class</code> 对象以及它关联的本地 ClassLoader 是<strong>不可被原生序列化</strong>的。接下来当你满心欢喜调用 <code>oos.writeObject(hashMap)</code> 时，Java 序列化机制会直接抛出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.io.NotSerializableException: com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader</span><br></pre></td></tr></table></figure>
+
+<p>原本该送去目标靶机的 Payload，死在了序列化的前夜。</p>
+<hr>
+<h2 id="“移花接木”：给-HashMap-一张良民证"><a href="#“移花接木”：给-HashMap-一张良民证" class="headerlink" title="“移花接木”：给 HashMap 一张良民证"></a>“移花接木”：给 HashMap 一张良民证</h2><p>既然病根在 <code>hashMap.put()</code> 会查验户口，解决思路就非常清晰了：<strong>进门时给它看良民证，安全进门后再把刺客换进去。</strong></p>
+<p>这就是“先占位、后反射替换”的精髓：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">【阶段一：拿着良民证安全进门】</span><br><span class="line">构造脚本 ── 1. 注入无害占位对象 (如 ConstantTransformer) ──&gt; ToStringBean</span><br><span class="line">构造脚本 ── 2. 调用 hashMap.put(equalsBean, &quot;123&quot;) ───&gt; HashMap</span><br><span class="line">                                                          │</span><br><span class="line">                                         (计算 Hash，触发 toString)</span><br><span class="line">                                                          ▼</span><br><span class="line">                                      ToStringBean (访问无害对象，平稳建桶)</span><br><span class="line"></span><br><span class="line">【阶段二：绕过逻辑，静默换人】</span><br><span class="line">构造脚本 ── 3. getDeclaredField(&quot;_obj&quot;) / setAccessible(true) ──&gt; 反射机制</span><br><span class="line">构造脚本 ── 4. field.set(toStringBean, templates) ───────────&gt; ToStringBean</span><br><span class="line">                 (直接改写堆内存指针，不触发任何 Getter)</span><br><span class="line"></span><br><span class="line">【阶段三：打包交付】</span><br><span class="line">构造脚本 ── 5. writeObject(hashMap) ──&gt; 输出纯净无污染的序列化流</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>安全占位</strong>：初始时塞一个毫无杀伤力、也不搞事情的普通对象（比如一个单纯的字符串，或 <code>ConstantTransformer(1)</code>）。<code>put()</code> 阶段它被随便调用，哈希表平稳地把桶位分配好。</li>
+<li><strong>静默掉包</strong>：等 <code>HashMap</code> 归于平静，直接利用 Java 反射的底层权限 <code>field.setAccessible(true)</code>，越过所有 Setter、构造方法和生命周期回调，<strong>直接在内存堆上修改指针</strong>，把私有属性 <code>_obj</code> 替换为真正的 <code>TemplatesImpl</code>。</li>
+<li><strong>完美冻结</strong>：此时的 <code>TemplatesImpl</code> 内部的所有状态字段（如 <code>_class</code>）都处于纯洁未触发的初始状态，序列化顺畅无阻。</li>
+</ol>
+<p>直到这个序列化对象被发往靶机，在远端目标反序列化执行 <code>readObject()</code> 重新计算 Hash 时，这颗延迟引信才会被真正引爆。</p>
+<hr>
+<h2 id="思考与延伸"><a href="#思考与延伸" class="headerlink" title="思考与延伸"></a>思考与延伸</h2><p>这种写法不仅出现在 ROME 链中，在 Commons Collections、Spring、AspectJWeaver 等各种复杂的 Gadget 构造中比比皆是。</p>
+<ul>
+<li>凡是遇到 <strong><code>HashMap</code>、<code>Hashtable</code>、<code>PriorityQueue</code></strong> 这种在添加元素时具有“主动感知与比对机制”（调用 <code>hashCode()</code>、<code>equals()</code>、<code>compareTo()</code>）的集合；</li>
+<li>凡是遇到被调用的终点对象在执行时会<strong>修改自身内部状态、产生缓存污染</strong>。</li>
+</ul>
+<p><strong>“先放占位符骗过检查，再用反射静默替换”</strong> 都是标准的最优解。它利用反射的“无感知侵入”能力，巧妙地化解了本地装配与远端触发之间的时序死锁。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag"># Java安全</a>
+              <a href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag"># 反序列化</a>
+              <a href="/tags/Gadget/" rel="tag"># Gadget</a>
+              <a href="/tags/ROME/" rel="tag"># ROME</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/09/21/fastjson_1224_complete_chain/" rel="prev" title="Fastjson 1.2.24 Payload → RCE 完整调用链（源码深度版）">
+      <i class="fa fa-chevron-left"></i> Fastjson 1.2.24 Payload → RCE 完整调用链（源码深度版）
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%B4%E5%91%BD%E7%9A%84%E5%AF%BC%E7%81%AB%E7%B4%A2%EF%BC%9AHashMap-put-%E4%BC%9A%E8%87%AA%E5%B7%B1%E2%80%9C%E5%8A%A8%E6%89%8B%E2%80%9D"><span class="nav-number">1.</span> <span class="nav-text">致命的导火索：HashMap.put() 会自己“动手”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E5%89%8D%E5%9C%A8%E6%9C%AC%E5%9C%B0%E8%A7%A6%E5%8F%91%EF%BC%8C%E4%BC%9A%E6%9C%89%E5%A4%9A%E6%83%A8%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">提前在本地触发，会有多惨？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8D%8A%E6%88%90%E5%93%81%E7%9B%B4%E6%8E%A5%E6%9A%B4%E6%AF%99%EF%BC%88NPE%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">1. 半成品直接暴毙（NPE）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%8A%B6%E6%80%81%E8%A2%AB%E2%80%9C%E6%B1%A1%E6%9F%93%E2%80%9D%EF%BC%9A%E6%9C%80%E9%9A%90%E8%94%BD%E7%9A%84-NotSerializableException"><span class="nav-number">2.2.</span> <span class="nav-text">2. 状态被“污染”：最隐蔽的 NotSerializableException</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%9C%E7%A7%BB%E8%8A%B1%E6%8E%A5%E6%9C%A8%E2%80%9D%EF%BC%9A%E7%BB%99-HashMap-%E4%B8%80%E5%BC%A0%E8%89%AF%E6%B0%91%E8%AF%81"><span class="nav-number">3.</span> <span class="nav-text">“移花接木”：给 HashMap 一张良民证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E5%BB%B6%E4%BC%B8"><span class="nav-number">4.</span> <span class="nav-text">思考与延伸</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lg22</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lg22</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
