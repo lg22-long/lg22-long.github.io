@@ -1168,7 +1168,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #9fff46;
+  background: #8c0b79;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2562,4 +2562,9 @@ ul.breadcrumb li + li:last-child {
   .pagination {
     margin: 8px 0 0;
   }
+}
+/* QQ 号码展示为纯文本：去掉手型指针与下划线悬停效果 */
+.links-of-author-item a[href="javascript:void(0)"] {
+  cursor: default;
+  pointer-events: none;
 }
