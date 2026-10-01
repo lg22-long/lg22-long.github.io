@@ -1168,7 +1168,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #8c0b79;
+  background: #717320;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2563,8 +2563,10 @@ ul.breadcrumb li + li:last-child {
     margin: 8px 0 0;
   }
 }
-/* QQ 号码展示为纯文本：去掉手型指针与下划线悬停效果 */
-.links-of-author-item a[href="javascript:void(0)"] {
+/* QQ 号码纯文本展示：无链接、无截断 */
+.qq-plain-text {
+  display: block !important;
+  white-space: nowrap;
   cursor: default;
-  pointer-events: none;
+  color: #555;
 }
